@@ -15,6 +15,9 @@ const merriweather = Merriweather({
 export const metadata = {
   title: "YANKI. | Premium Haber Platformu",
   description: "En güncel ve doğru haberler. Gündem, ekonomi, spor ve daha fazlası.",
+  verification: {
+    google: "ir-cZMFjS9Jc97x56vozXIP5EI9_uoRUvBdggO8Xing",
+  },
 };
 
 export default function RootLayout({ children }) {
