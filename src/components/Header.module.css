@@ -1,0 +1,101 @@
+/* Floating Pill Header */
+.headerWrapper {
+  position: relative;
+  top: var(--space-4);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.header {
+  background: var(--bg-header);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-8);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: box-shadow var(--transition-normal);
+}
+
+.header:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.logo {
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: flex;
+  align-items: baseline;
+}
+
+.logo span {
+  color: var(--accent-secondary);
+  -webkit-text-fill-color: var(--accent-secondary);
+  font-size: 2.5rem;
+  line-height: 0;
+}
+
+.categoriesList {
+  display: flex;
+  gap: var(--space-6);
+  list-style: none;
+}
+
+.categoryLink {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.categoryLink:hover {
+  color: var(--accent-primary);
+  background: rgba(37, 99, 235, 0.05);
+}
+
+@media (max-width: 768px) {
+  .headerWrapper {
+    top: var(--space-2);
+    padding: 0 var(--space-2);
+  }
+  .header {
+    flex-direction: column;
+    gap: var(--space-3);
+    border-radius: var(--radius-xl);
+    padding: var(--space-3);
+  }
+  .categoriesList {
+    display: flex;
+    overflow-x: auto;
+    width: 100%;
+    padding-bottom: var(--space-2);
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .categoriesList::-webkit-scrollbar {
+    display: none;
+  }
+  .categoryLink {
+    white-space: nowrap;
+    font-size: 0.8rem;
+    padding: var(--space-1) var(--space-3);
+  }
+}
