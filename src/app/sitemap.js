@@ -1,3 +1,4 @@
+export const dynamic = "force-static";
 import { getAllNews } from '../services/newsAggregator';
 
 export default async function sitemap() {
