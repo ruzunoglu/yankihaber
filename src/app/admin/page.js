@@ -2,19 +2,21 @@
 
 import { useState, useEffect } from 'react';
 import { categories } from '../../data/mockNews';
-import { addCustomNews, hideNews, editNewsOverride, saveSiteSettings, getSiteSettings, uploadImage } from '../../services/adminService';
+import { addCustomNews, hideNews, editNewsOverride, saveSiteSettings, getSiteSettings, uploadImage, getTotalReads, getTotalNewsCount } from '../../services/adminService';
 import { getAllNews } from '../../services/newsAggregator';
 import styles from './page.module.css';
 import Link from 'next/link';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [allNews, setAllNews] = useState([]);
+  const [totalNewsCount, setTotalNewsCount] = useState(0);
   const [isLoadingNews, setIsLoadingNews] = useState(false);
   const [submitMessage, setSubmitMessage] = useState({ type: '', text: '' });
 
@@ -33,6 +35,15 @@ export default function AdminPage() {
   const [siteName, setSiteName] = useState('YANKI.');
   const [siteDescription, setSiteDescription] = useState('Premium Haber Platformu');
   const [imgbbApiKey, setImgbbApiKey] = useState('');
+  const [totalReads, setTotalReads] = useState(0);
+
+  useEffect(() => {
+    const auth = localStorage.getItem('isAdminAuth');
+    if (auth === 'true') {
+      setIsAuthenticated(true);
+    }
+    setIsCheckingAuth(false);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -44,8 +55,12 @@ export default function AdminPage() {
   const loadNews = async () => {
     setIsLoadingNews(true);
     try {
-      const news = await getAllNews();
+      // Sadece son 200 haberi tablo için çekiyoruz
+      const news = await getAllNews(200);
       setAllNews(news);
+      
+      const count = await getTotalNewsCount();
+      setTotalNewsCount(count);
     } catch (e) {
       console.error(e);
     }
@@ -59,16 +74,24 @@ export default function AdminPage() {
       setSiteDescription(s.siteDescription || 'Premium Haber Platformu');
       setImgbbApiKey(s.imgbbApiKey || '');
     }
+    const reads = await getTotalReads();
+    setTotalReads(reads);
   };
 
   const handleLogin = (e) => {
     e.preventDefault();
     if (username === 'admin' && password === 'alivelideli') {
       setIsAuthenticated(true);
+      localStorage.setItem('isAdminAuth', 'true');
       setLoginError('');
     } else {
       setLoginError('Kullanıcı adı veya şifre hatalı!');
     }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('isAdminAuth');
   };
 
   const showMessage = (type, text) => {
@@ -155,6 +178,10 @@ export default function AdminPage() {
     setIsHeadline(false);
   };
 
+  if (isCheckingAuth) {
+    return <div style={{textAlign: 'center', padding: '5rem', color: 'var(--text-secondary)'}}>Oturum kontrol ediliyor...</div>;
+  }
+
   if (!isAuthenticated) {
     return (
       <div className={styles.adminWrapper} style={{ alignItems: 'center' }}>
@@ -189,7 +216,7 @@ export default function AdminPage() {
           <button className={`${styles.navItem} ${activeTab === 'addNews' ? styles.active : ''}`} onClick={() => { resetForm(); setActiveTab('addNews'); }}>➕ Yeni Ekle</button>
           <button className={`${styles.navItem} ${activeTab === 'settings' ? styles.active : ''}`} onClick={() => setActiveTab('settings')}>⚙️ Site Ayarları</button>
         </nav>
-        <button onClick={() => setIsAuthenticated(false)} className={styles.navItem} style={{ marginTop: 'auto', color: 'var(--category-gundem)' }}>🚪 Çıkış Yap</button>
+        <button onClick={handleLogout} className={styles.navItem} style={{ marginTop: 'auto', color: 'var(--category-gundem)' }}>🚪 Çıkış Yap</button>
       </div>
 
       {/* Main Content */}
@@ -207,16 +234,16 @@ export default function AdminPage() {
             </div>
             <div className={styles.statsGrid}>
               <div className={styles.statCard}>
-                <div className={styles.statTitle}>Toplam Haber Sayısı</div>
-                <div className={styles.statValue}>{isLoadingNews ? '...' : allNews.length}</div>
+                <div className={styles.statTitle}>Toplam Arşivlenmiş Haber</div>
+                <div className={styles.statValue}>{isLoadingNews ? '...' : totalNewsCount}</div>
               </div>
               <div className={styles.statCard}>
                 <div className={styles.statTitle}>Özel Haber (Senin Eklediğin)</div>
                 <div className={styles.statValue}>{isLoadingNews ? '...' : allNews.filter(n => n.source === 'Özel Haber').length}</div>
               </div>
               <div className={styles.statCard}>
-                <div className={styles.statTitle}>Toplam Okunma (Tahmini)</div>
-                <div className={styles.statValue}>{allNews.length * 142}</div>
+                <div className={styles.statTitle}>Toplam Okunma (Gerçek)</div>
+                <div className={styles.statValue}>{totalReads}</div>
               </div>
             </div>
           </div>
@@ -225,7 +252,7 @@ export default function AdminPage() {
         {activeTab === 'newsList' && (
           <div>
             <div className={styles.pageHeader}>
-              <h1 className={styles.pageTitle}>Haber Yönetimi</h1>
+              <h1 className={styles.pageTitle}>Haber Yönetimi (Son 200 Haber)</h1>
             </div>
             <div className={styles.tableContainer}>
               <table className={styles.table}>

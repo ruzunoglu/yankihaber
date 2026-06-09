@@ -66,6 +66,17 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-wrapper {
+  padding-bottom: 70px; /* Space for BottomNav on mobile */
+}
+
+@media (min-width: 769px) {
+  .app-wrapper {
+    padding-bottom: 0;
+  }
 }
 
 a {

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { categories } from '../../../data/mockNews';
 import { getAllNews, getNewsById, getNewsByCategory } from '../../../services/newsAggregator';
+import ReadTracker from '../../../components/ReadTracker';
 import styles from './page.module.css';
 
 export async function generateStaticParams() {
@@ -36,6 +37,7 @@ export default async function NewsDetail({ params }) {
 
   return (
     <div className={styles.articleWrapper}>
+      <ReadTracker />
       {/* Simple Header */}
       <header className={styles.simpleHeader}>
         <div className={`container ${styles.nav}`}>

@@ -1,4 +1,4 @@
-import { collection, addDoc, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, setDoc, getDoc, serverTimestamp, increment, updateDoc, getCountFromServer } from 'firebase/firestore';
 import { db } from './firebaseConfig';
 
 export async function uploadImage(file, apiKey) {
@@ -97,5 +97,44 @@ export async function getSiteSettings() {
     return null;
   } catch (error) {
     return null;
+  }
+}
+
+export async function incrementTotalReads() {
+  if (!db) return;
+  try {
+    const statRef = doc(db, "stats", "global");
+    await updateDoc(statRef, {
+      totalReads: increment(1)
+    });
+  } catch (error) {
+    if (error.code === 'not-found') {
+      await setDoc(doc(db, "stats", "global"), { totalReads: 1 });
+    }
+  }
+}
+
+export async function getTotalReads() {
+  if (!db) return 0;
+  try {
+    const docSnap = await getDoc(doc(db, "stats", "global"));
+    if (docSnap.exists()) {
+      return docSnap.data().totalReads || 0;
+    }
+    return 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+export async function getTotalNewsCount() {
+  if (!db) return 0;
+  try {
+    const coll = collection(db, "news");
+    const snapshot = await getCountFromServer(coll);
+    return snapshot.data().count;
+  } catch (error) {
+    console.error("Haber sayısı alınamadı:", error);
+    return 0;
   }
 }

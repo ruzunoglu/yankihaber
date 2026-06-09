@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { categories } from '../../../data/mockNews';
 import { getNewsById, getNewsByCategory } from '../../../services/newsAggregator';
+import { incrementTotalReads } from '../../../services/adminService';
 import Header from '../../../components/Header';
 import styles from './page.module.css';
 
@@ -50,6 +51,8 @@ function NewsDetailContent() {
         document.head.appendChild(metaDesc);
       }
       metaDesc.content = article.summary?.substring(0, 160) || article.title;
+      
+      incrementTotalReads().catch(console.error);
     }
   }, [article]);
 

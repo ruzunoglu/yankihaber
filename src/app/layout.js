@@ -15,10 +15,27 @@ const merriweather = Merriweather({
 export const metadata = {
   title: "YANKI. | Premium Haber Platformu",
   description: "En güncel ve doğru haberler. Gündem, ekonomi, spor ve daha fazlası.",
+  manifest: "/manifest.json",
+  themeColor: "#2563eb",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "YANKI."
+  },
   verification: {
     google: "ir-cZMFjS9Jc97x56vozXIP5EI9_uoRUvBdggO8Xing",
   },
 };
+
+export const viewport = {
+  themeColor: '#2563eb',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
+
+import InstallPrompt from "../components/InstallPrompt";
+import BottomNav from "../components/BottomNav";
 
 export default function RootLayout({ children }) {
   return (
@@ -27,6 +44,8 @@ export default function RootLayout({ children }) {
         <main className="app-wrapper">
           {children}
         </main>
+        <InstallPrompt />
+        <BottomNav />
       </body>
     </html>
   );

@@ -132,14 +132,26 @@ async function run() {
     return { ...news, seoUrl: `${createSeoSlug(news.title)}-${news.id}` };
   });
 
-  const finalNews = allNews.slice(0, 400);
+  // allNews contains all fetched items. No slicing.
+  console.log(`Toplam ${allNews.length} haber bulundu. Veritabanına aktarılıyor...`);
 
   try {
-    await db.collection("cache").doc("rss_news").set({
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      items: finalNews
-    });
-    console.log(`Başarıyla ${finalNews.length} haber Firestore'a kaydedildi.`);
+    const batchSize = 400; // Firebase batch limit is 500
+    for (let i = 0; i < allNews.length; i += batchSize) {
+      const batch = db.batch();
+      const chunk = allNews.slice(i, i + batchSize);
+      
+      chunk.forEach(news => {
+        const docRef = db.collection("news").doc(news.id);
+        // Using set with merge to update existing articles without duplicating
+        batch.set(docRef, news, { merge: true });
+      });
+
+      await batch.commit();
+      console.log(`[Batch] ${i + chunk.length} / ${allNews.length} kaydedildi.`);
+    }
+
+    console.log(`Başarıyla tüm haberler (Toplam: ${allNews.length}) Firestore 'news' koleksiyonuna kaydedildi.`);
   } catch (e) {
     console.error("Firestore'a kaydederken hata oluştu:", e);
     process.exit(1);
