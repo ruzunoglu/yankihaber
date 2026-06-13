@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getArticleById, getAuthorById } from '../../../services/authorAggregator';
 import Header from '../../../components/Header';
+import AudioReader from '../../../components/AudioReader';
 import Head from 'next/head';
 
 function ArticleContent() {
@@ -54,9 +55,9 @@ function ArticleContent() {
 
         <h1 style={{ fontSize: '2.2rem', marginBottom: '30px', lineHeight: '1.3' }}>{article.title}</h1>
         
-        {/* Eğer haber resmi yazar resmi değilse ve varsa makale resmi olarak gösterebiliriz ama genelde makale resmi aynıdır */}
+        <AudioReader title={article.title} content={article.content} />
         
-        <div style={{ fontSize: '1.1rem', color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
+        <div style={{ fontSize: '1.1rem', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', marginTop: '20px' }}>
           {article.content}
         </div>
         
