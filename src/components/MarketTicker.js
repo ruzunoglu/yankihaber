@@ -16,19 +16,28 @@ export default function MarketTicker() {
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const resUSD = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-        const dataUSD = await resUSD.json();
-        const tryRate = dataUSD.rates.TRY;
+        const res = await fetch('https://finans.truncgil.com/today.json');
+        const data = await res.json();
+        
+        const parseVal = (str) => {
+          if (!str) return 0;
+          return parseFloat(str.replace(/\\./g, '').replace(',', '.'));
+        };
+        
+        const parseChange = (str) => {
+          if (!str) return 0;
+          return parseFloat(str.replace('%', '').replace(',', '.'));
+        };
 
-        const resEUR = await fetch('https://api.exchangerate-api.com/v4/latest/EUR');
-        const dataEUR = await resEUR.json();
-        const eurTryRate = dataEUR.rates.TRY;
+        const usd = data['USD'] || { Satış: '32.50', Değişim: '%0' };
+        const eur = data['EUR'] || { Satış: '35.10', Değişim: '%0' };
+        const gold = data['gram-altin'] || { Satış: '2450.00', Değişim: '%0' };
 
         setMarketData([
           { symbol: 'BIST 100', value: 10250.00, change: +0.8 }, // Sabit/Mock
-          { symbol: 'USD/TRY', value: tryRate, change: +0.12 },
-          { symbol: 'EUR/TRY', value: eurTryRate, change: +0.08 },
-          { symbol: 'ALTIN (Gr)', value: tryRate * 76.5, change: +0.4 }, // Tahmini Altın
+          { symbol: 'USD/TRY', value: parseVal(usd.Satış), change: parseChange(usd.Değişim) },
+          { symbol: 'EUR/TRY', value: parseVal(eur.Satış), change: parseChange(eur.Değişim) },
+          { symbol: 'ALTIN (Gr)', value: parseVal(gold.Satış), change: parseChange(gold.Değişim) },
           { symbol: 'BTC/USD', value: 69500, change: +1.2 }, // Sabit/Mock
         ]);
       } catch (error) {
