@@ -7,6 +7,9 @@ import { categories } from '../../../data/mockNews';
 import { getNewsById, getNewsByCategory } from '../../../services/newsAggregator';
 import { incrementTotalReads } from '../../../services/adminService';
 import Header from '../../../components/Header';
+import AudioReader from '../../../components/AudioReader';
+import ShareButtons from '../../../components/ShareButtons';
+import CommentsAndReactions from '../../../components/CommentsAndReactions';
 import styles from './page.module.css';
 
 function NewsDetailContent() {
@@ -110,6 +113,9 @@ function NewsDetailContent() {
 
       {/* Article Content */}
       <div className={styles.articleBody}>
+        {/* Audio Reader */}
+        <AudioReader title={article.title} content={article.content} />
+
         <p className={styles.articleSummary}>{article.summary || ''}</p>
         
         <div className={styles.articleText} dangerouslySetInnerHTML={{ __html: article.content || '' }}>
@@ -118,12 +124,11 @@ function NewsDetailContent() {
         {/* Share Actions */}
         <div className={styles.actions}>
           <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Haberi Paylaş</span>
-          <div className={styles.shareButtons}>
-            <button className={styles.shareBtn} aria-label="Twitter'da Paylaş">X</button>
-            <button className={styles.shareBtn} aria-label="Facebook'ta Paylaş">f</button>
-            <button className={styles.shareBtn} aria-label="Bağlantıyı Kopyala">🔗</button>
-          </div>
+          <ShareButtons title={article.title} path={`/haber/detay?id=${id}`} />
         </div>
+        
+        {/* Comments & Reactions */}
+        <CommentsAndReactions articleId={id} />
       </div>
 
       {/* Related News (Re-using some global styles) */}
