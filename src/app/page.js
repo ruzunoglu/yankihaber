@@ -8,9 +8,14 @@ import { getAllNews } from '../services/newsAggregator';
 import { getSiteSettings } from '../services/adminService';
 import HeroSlider from '../components/HeroSlider';
 import Header from '../components/Header';
+import AuthorsCorner from '../components/AuthorsCorner';
+import DailyPoll from '../components/DailyPoll';
+import NewsletterForm from '../components/NewsletterForm';
+import WeatherWidget from '../components/WeatherWidget';
 
 export default function Home() {
   const [newsList, setNewsList] = useState([]);
+  const [personalizedNews, setPersonalizedNews] = useState([]);
   const [siteName, setSiteName] = useState('YANKI.');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -24,6 +29,10 @@ export default function Home() {
       if (settings && settings.siteName) {
         setSiteName(settings.siteName);
       }
+      
+      // Personalized News Simulation (can be based on localStorage history)
+      setPersonalizedNews([...news].sort(() => 0.5 - Math.random()).slice(0, 4));
+      
       setIsLoading(false);
     };
     loadData();
@@ -44,6 +53,7 @@ export default function Home() {
       <Header />
 
       <div className="container">
+
         {/* Modern Ticker */}
         <div className={styles.tickerWrapper}>
           <div className={styles.ticker}>
@@ -74,7 +84,36 @@ export default function Home() {
         ) : (
           <>
             {/* Hero Slider */}
-            <HeroSlider headlines={headlines} categories={categories} />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+              <div style={{ flex: '1 1 65%', minWidth: '300px' }}>
+                <HeroSlider headlines={headlines} categories={categories} />
+              </div>
+              <div style={{ flex: '1 1 30%', minWidth: '300px' }}>
+                <WeatherWidget />
+                <DailyPoll />
+              </div>
+            </div>
+
+            {/* Personalized News */}
+            <h2 className="section-title" style={{ marginTop: '40px' }}>Sana Özel ✨</h2>
+            <div className={styles.newsGrid}>
+              {personalizedNews.map((news) => (
+                <Link href={`/haber/${news.seoUrl || news.id}`} key={`pers-${news.id}`} className={styles.glassCard}>
+                  <div className={styles.cardImageWrapper}>
+                    <img src={news.image} alt={news.title} className={styles.cardImage} />
+                    <span className={styles.cardCategory} style={{ backgroundColor: categories.find(c=>c.id===news.category)?.color }}>
+                      {categories.find(c=>c.id===news.category)?.name}
+                    </span>
+                  </div>
+                  <div className={styles.cardContent}>
+                    <h3 className={styles.cardTitle}>{news.title}</h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            {/* Authors Corner */}
+            <AuthorsCorner />
 
             {/* Glass Cards Section */}
             <h2 className="section-title">En Yeni Gelişmeler</h2>
@@ -98,6 +137,17 @@ export default function Home() {
               </Link>
             ))}
           </div>
+
+          {/* Archive Hero Section */}
+          <div className={styles.archiveSection}>
+            <h2>Limitsiz Arşivi Keşfet</h2>
+            <p>Geçmişten günümüze tüm haberlere tek tıkla ulaşın. İhtiyacınız olan her şey dev arşivimizde.</p>
+            <Link href="/kategori/gundem" className={styles.archiveButton}>
+              Arşive Git &rarr;
+            </Link>
+          </div>
+
+          <NewsletterForm />
         </>
         )}
       </div>
