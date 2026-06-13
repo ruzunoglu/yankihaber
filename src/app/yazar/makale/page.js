@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import { getArticleById, getAuthorById } from '../../../services/authorAggregator';
 import Header from '../../../components/Header';
 import AudioReader from '../../../components/AudioReader';
+import ShareButtons from '../../../components/ShareButtons';
+import CommentsAndReactions from '../../../components/CommentsAndReactions';
 import Head from 'next/head';
 
 function ArticleContent() {
@@ -61,10 +63,21 @@ function ArticleContent() {
           {article.content}
         </div>
         
-        <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid var(--border-color)', textAlign: 'right', fontSize: '0.9rem' }}>
-          <a href={article.originalLink} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', textDecoration: 'underline' }}>
-            Orijinal Kaynak: {article.source}
-          </a>
+        <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: '0.9rem' }}>
+            <a href={article.originalLink} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', textDecoration: 'underline' }}>
+              Orijinal Kaynak: {article.source}
+            </a>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>Makaleyi Paylaş</span>
+            <ShareButtons title={article.title} path={`/yazar/makale?authorId=${authorId}&articleId=${articleId}`} />
+          </div>
+        </div>
+
+        {/* Comments & Reactions */}
+        <div style={{ marginTop: '30px' }}>
+          <CommentsAndReactions articleId={`author-${articleId}`} />
         </div>
       </div>
     </>
