@@ -155,10 +155,24 @@ async function fetchAuthors() {
 
   // Grup the articles by author
   const authorsMap = {};
-  articles.forEach(article => {
+  for (const article of articles) {
     if (!authorsMap[article.authorId]) {
-      // Yazar fotoğrafı olarak scrape edilen resmi kullan veya rss içindekini kullan
       let finalImage = article.image;
+      
+      // Habertürk yazar resimlerini tahmin edelim ve kontrol edelim
+      if (article.source === 'Habertürk') {
+        const slug = encodeURIComponent(article.authorName.toLowerCase().replace(/[\s\.]+/g, '-').replace(/[ç]/g, 'c').replace(/[ğ]/g, 'g').replace(/[ı]/g, 'i').replace(/[ö]/g, 'o').replace(/[ş]/g, 's').replace(/[ü]/g, 'u'));
+        const htImage = `https://im.haberturk.com/assets/laravel/images/common/other/ht-ozel-icerik-banner/${slug}.png`;
+        try {
+          const res = await fetch(htImage, { method: 'HEAD' });
+          if (res.ok) {
+            finalImage = htImage;
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+
       if (!finalImage || finalImage.length < 5) {
         finalImage = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(article.authorName) + '&background=random&size=128';
       }
@@ -171,15 +185,15 @@ async function fetchAuthors() {
         image: finalImage,
         articles: []
       };
-    } else if (article.image && !authorsMap[article.authorId].image.includes('ui-avatars')) {
-        // Eğer zaten ui-avatar olmayan bir resim bulmuşsak üzerine yazmayalım
-    } else if (article.image) {
-        authorsMap[article.authorId].image = article.image; // Bulduğumuz ilk gerçek resmi ata
+    } else if (article.image && !authorsMap[article.authorId].image.includes('ht-ozel') && !authorsMap[article.authorId].image.includes('ui-avatars')) {
+        // Zaten gerçek bir fotoğrafımız varsa bir şey yapma
+    } else if (article.image && authorsMap[article.authorId].image.includes('ui-avatars')) {
+        authorsMap[article.authorId].image = article.image; 
     }
     
     // Temizlenmiş makaleyi diziye ekle
     authorsMap[article.authorId].articles.push(article);
-  });
+  }
   
   // Sort articles for each author by date
   const authorsList = Object.values(authorsMap);
