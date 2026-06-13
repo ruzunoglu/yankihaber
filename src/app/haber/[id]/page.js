@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { categories } from '../../../data/mockNews';
 import { getAllNews, getNewsById, getNewsByCategory } from '../../../services/newsAggregator';
 import ReadTracker from '../../../components/ReadTracker';
+import AudioReader from '../../../components/AudioReader';
+import CommentsAndReactions from '../../../components/CommentsAndReactions';
 import styles from './page.module.css';
 
 export async function generateStaticParams() {
@@ -9,6 +11,43 @@ export async function generateStaticParams() {
   return allNews.map((news) => ({
     id: news.id.toString(),
   }));
+}
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const article = await getNewsById(id);
+  
+  if (!article) return { title: 'Haber Bulunamadı' };
+
+  return {
+    title: article.title,
+    description: article.summary,
+    openGraph: {
+      title: article.title,
+      description: article.summary,
+      url: `/haber/${article.seoUrl || id}`,
+      type: 'article',
+      publishedTime: new Date(article.date).toISOString(),
+      images: [
+        {
+          url: article.image,
+          alt: article.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.summary,
+      images: [article.image],
+    },
+    alternates: {
+      canonical: `/haber/${article.seoUrl || id}`,
+      types: {
+        'amphtml': `https://yankihabersitesi.web.app/amp/${article.seoUrl || id}`
+      }
+    }
+  };
 }
 
 export default async function NewsDetail({ params }) {
@@ -35,20 +74,29 @@ export default async function NewsDetail({ params }) {
   // Calculate random reading time between 2 to 8 mins
   const readingTime = Math.floor(article.summary.length / 50) || 3;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: article.title,
+    image: [article.image],
+    datePublished: new Date(article.date).toISOString(),
+    dateModified: new Date(article.date).toISOString(),
+    author: [{
+      '@type': 'Person',
+      name: 'Haber Merkezi',
+    }],
+    description: article.summary,
+  };
+
   return (
     <div className={styles.articleWrapper}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ReadTracker />
-      {/* Simple Header */}
-      <header className={styles.simpleHeader}>
-        <div className={`container ${styles.nav}`}>
-          <Link href="/" className={styles.logo}>
-            YANKI<span>.</span>
-          </Link>
-          <Link href={`/kategori/${category?.id}`} className={styles.backLink}>
-            &larr; {category?.name} Haberlerine Dön
-          </Link>
-        </div>
-      </header>
+      
+      {/* Cleaned duplicate header */}
 
       {/* Hero Image & Title */}
       <div className={styles.heroContainer}>
@@ -79,6 +127,9 @@ export default async function NewsDetail({ params }) {
 
       {/* Article Content */}
       <div className={styles.articleBody}>
+        {/* Audio Reader */}
+        <AudioReader title={article.title} content={article.content} />
+
         <p className={styles.articleSummary}>{article.summary}</p>
         
         <div className={styles.articleText} dangerouslySetInnerHTML={{ __html: article.content }}>
@@ -93,6 +144,9 @@ export default async function NewsDetail({ params }) {
             <button className={styles.shareBtn} aria-label="Bağlantıyı Kopyala">🔗</button>
           </div>
         </div>
+        
+        {/* Comments & Reactions */}
+        <CommentsAndReactions articleId={id} />
       </div>
 
       {/* Related News (Re-using some global styles) */}
