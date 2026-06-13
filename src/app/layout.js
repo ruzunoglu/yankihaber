@@ -13,17 +13,28 @@ const merriweather = Merriweather({
 });
 
 export const metadata = {
-  title: "YANKI. | Premium Haber Platformu",
+  metadataBase: new URL('https://yankihabersitesi.web.app'),
+  title: {
+    default: "YANKI. | Premium Haber Platformu",
+    template: "%s | YANKI."
+  },
   description: "En güncel ve doğru haberler. Gündem, ekonomi, spor ve daha fazlası.",
   manifest: "/manifest.json",
-  themeColor: "#2563eb",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "YANKI."
   },
   verification: {
-    google: "ir-cZMFjS9Jc97x56vozXIP5EI9_uoRUvBdggO8Xing",
+    google: "mpK-vZXiBA5DNW2fAYe2_unXgHnugVqYJLMAmlJhDGA",
+  },
+  openGraph: {
+    title: "YANKI. | Premium Haber Platformu",
+    description: "En güncel ve doğru haberler. Gündem, ekonomi, spor ve daha fazlası.",
+    url: "https://yankihabersitesi.web.app",
+    siteName: "YANKI.",
+    locale: "tr_TR",
+    type: "website",
   },
 };
 
@@ -36,15 +47,21 @@ export const viewport = {
 
 import InstallPrompt from "../components/InstallPrompt";
 import BottomNav from "../components/BottomNav";
+import PushNotificationSetup from "../components/PushNotificationSetup";
+import MarketTicker from "../components/MarketTicker";
+import Footer from "../components/Footer";
 
 export default function RootLayout({ children }) {
   return (
     <html lang="tr" className={`${inter.variable} ${merriweather.variable}`}>
       <body>
+        <MarketTicker />
         <main className="app-wrapper">
           {children}
         </main>
+        <Footer />
         <InstallPrompt />
+        <PushNotificationSetup />
         <BottomNav />
       </body>
     </html>
