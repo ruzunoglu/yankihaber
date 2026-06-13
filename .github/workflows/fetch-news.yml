@@ -19,7 +19,7 @@ jobs:
           node-version: '20'
           
       - name: Install dependencies
-        run: npm install firebase-admin rss-parser
+        run: npm install firebase-admin rss-parser cheerio
         
       - name: Run fetch scripts
         env:

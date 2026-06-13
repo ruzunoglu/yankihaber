@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { getAuthorById } from '../../../services/authorAggregator';
 import Header from '../../../components/Header';
 
@@ -50,11 +51,9 @@ function AuthorDetailContent() {
               <span style={{ color: 'var(--text-primary)', textDecoration: 'none' }}>{article.title}</span>
             </h3>
             <p style={{ margin: '0 0 15px 0', color: 'var(--text-secondary)', lineHeight: '1.6' }}>{article.summary}</p>
-            {article.originalLink && (
-              <a href={article.originalLink} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
-                Yazının Tamamını Oku &rarr;
-              </a>
-            )}
+            <Link href={`/yazar/makale?authorId=${author.id}&articleId=${article.id}`} style={{ color: 'var(--accent-primary)', textDecoration: 'none', fontWeight: 'bold', fontSize: '0.9rem' }}>
+              Yazının Tamamını Oku &rarr;
+            </Link>
           </div>
         ))}
         {author.articles.length === 0 && (
